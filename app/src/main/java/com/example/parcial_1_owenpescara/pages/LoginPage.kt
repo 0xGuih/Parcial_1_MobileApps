@@ -1,9 +1,11 @@
 package com.example.parcial_1_owenpescara.pages
 
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,9 +32,11 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.parcial_1_owenpescara.User
 import com.example.parcial_1_owenpescara.ui.theme.Parcial_1_OwenPescaraTheme
 
@@ -43,10 +47,7 @@ fun LoginPage(modifier: Modifier = Modifier) {
 
     Scaffold(
         modifier = modifier,
-        topBar = { MainTopAppBar(modifier) },
-        floatingActionButton = {
-            // TODO: ...
-        }
+        topBar = { MainTopAppBar(modifier) }
     ) {
         MainNavHost(
             modifier = modifier.padding(it),
@@ -76,9 +77,10 @@ fun MainTopAppBar(modifier: Modifier) {
 @Composable
 fun Login(modifier: Modifier, navHostController: NavHostController){
 
+    val user: User = User()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val user: User = User()
 
     Column (
         modifier = Modifier,
@@ -128,21 +130,32 @@ fun Login(modifier: Modifier, navHostController: NavHostController){
         Row (modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ){
-            Button(onClick = {
-                if (email == user.email && password == user.pass){
-                    navHostController.navigate("welcome")
-                }
-
-            },
+            Button(
+                onClick = {
+                    clickTest()
+                    if (email == user.email && password == user.pass){
+                        navHostController.navigate("welcome/${user.nombre}")
+                    }
+                    else{
+                        // TODO: Show fail login ... cuando ande este fkn botón
+                        println("TODO")
+                    }
+                },
                 modifier
                     .height(100.dp)
-                    .aspectRatio(1.0f),
+                    .aspectRatio(1f),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
             ) {
                 Text(text = "Log in")
             }
         }
     }
+}
+
+fun clickTest(){
+    var a = 0
+    a += 1
+    println("Algo no funciona con el onclick...")
 }
 
 @Composable
@@ -160,8 +173,17 @@ fun MainNavHost(
                 navHostController = navHostController
             )
         }
-        composable("welcome"){
-            WelcomePage()
+        composable(
+            "welcome",
+            arguments = listOf(
+                navArgument( name = "userName"){
+                    type = NavType.StringType
+                }
+            )){
+            val userName = it.arguments?.getString("userName")
+            if (userName != null) {
+                WelcomePage(userName = userName)
+            }
         }
     }
 }
